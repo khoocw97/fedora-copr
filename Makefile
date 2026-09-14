@@ -1,3 +1,4 @@
+# local make srpm
 SPECS  := umbriel.spec xdg-desktop-portal-umbriel.spec
 TOPDIR := $(CURDIR)/rpmbuild
 
