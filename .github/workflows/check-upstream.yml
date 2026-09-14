@@ -1,0 +1,68 @@
+name: check-upstream
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: check-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    container: fedora:44
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: dnf install -y git rpm systemd-rpm-macros python3 curl
+
+      - name: Bump specs to upstream HEAD
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          updated=false
+
+          bump() {
+            local repo=$1 spec=$2
+            local sha cur isodate commitdate short
+            sha=$(git ls-remote "https://github.com/${repo}" HEAD | awk '{print $1}')
+            cur=$(awk '/^%global commit / {print $3}' "$spec")
+            if [ "$sha" = "$cur" ]; then
+              echo "${spec}: already at ${sha}, skip"
+              return
+            fi
+            isodate=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" \
+              "https://api.github.com/repos/${repo}/commits/${sha}" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["author"]["date"])')
+            commitdate=$(date -u -d "$isodate" +%Y%m%d)
+            short=${sha:0:7}
+            echo "${spec}: ${cur:0:7} -> ${short} (${commitdate})"
+            sed -i -E \
+              -e "s|^%global commit .*|%global commit      ${sha}|" \
+              -e "s|^%global commitdate .*|%global commitdate  ${commitdate}|" \
+              "$spec"
+            rpmspec -P "$spec" > /dev/null
+            updated=true
+          }
+
+          bump noctalia-dev/umbriel umbriel.spec
+          bump noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
+
+          if [ "$updated" = true ]; then
+            git pull --rebase
+            git add *.spec
+            git -c user.name='github-actions[bot]' \
+                -c user.email='github-actions[bot]@users.noreply.github.com' \
+                commit -m "chore: bump to latest upstream HEAD"
+            git push
+          else
+            echo "nothing to update"
+          fi
