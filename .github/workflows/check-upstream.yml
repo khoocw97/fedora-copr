@@ -17,7 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:44
     steps:
+      # fedora:44 镜像自带没有 git，若先 checkout 会只下载文件而没有 .git，
+      # 后续 git pull/push 就会报 not a git repository。先装 git 再 checkout。
+      - name: Install git for checkout
+        run: dnf install -y git
+
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Install tooling
         run: dnf install -y git rpm-build systemd-rpm-macros python3 curl
@@ -27,7 +35,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git fetch origin main
+          git checkout -B main origin/main
           updated=false
 
           bump() {
@@ -57,12 +68,11 @@ jobs:
           bump noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
 
           if [ "$updated" = true ]; then
-            git pull --rebase
             git add *.spec
             git -c user.name='github-actions[bot]' \
                 -c user.email='github-actions[bot]@users.noreply.github.com' \
                 commit -m "chore: bump to latest upstream HEAD"
-            git push
+            git push origin main
           else
             echo "nothing to update"
           fi
