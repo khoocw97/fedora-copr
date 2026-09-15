@@ -16,9 +16,9 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     container: fedora:44
-    timeout-minutes: 10
     steps:
-
+      # fedora:44 镜像自带没有 git，若先 checkout 会只下载文件而没有 .git，
+      # 后续 git pull/push 就会报 not a git repository。先装 git 再 checkout。
       - name: Install git for checkout
         run: dnf install -y git
 
@@ -28,7 +28,7 @@ jobs:
           persist-credentials: true
 
       - name: Install tooling
-        run: dnf install -y rpm-build systemd-rpm-macros python3 curl
+        run: dnf install -y git rpm-build systemd-rpm-macros python3 curl
 
       - name: Bump specs to upstream HEAD
         env:
@@ -39,49 +39,35 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git fetch origin main
           git checkout -B main origin/main
-          updated=0
+          updated=false
 
           bump() {
             local repo=$1 spec=$2
             local sha cur isodate commitdate short
-
-            sha=$(timeout 30 git ls-remote "https://github.com/${repo}" HEAD 2>/dev/null \
-                  | awk '{print $1}' || true)
-            if [ -z "$sha" ]; then
-              echo "${spec}: failed to resolve upstream HEAD, skip" >&2
-              return
-            fi
-
+            sha=$(git ls-remote "https://github.com/${repo}" HEAD | awk '{print $1}')
             cur=$(awk '/^%global commit / {print $3}' "$spec")
             if [ "$sha" = "$cur" ]; then
               echo "${spec}: already at ${sha}, skip"
               return
             fi
-
-            if ! isodate=$(curl -fsSL --retry 3 --retry-connrefused \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
+            isodate=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" \
               "https://api.github.com/repos/${repo}/commits/${sha}" \
-              | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["author"]["date"])'); then
-              echo "${spec}: failed to fetch commit date, skip" >&2
-              return
-            fi
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["author"]["date"])')
             commitdate=$(date -u -d "$isodate" +%Y%m%d)
             short=${sha:0:7}
             echo "${spec}: ${cur:0:7} -> ${short} (${commitdate})"
-
             sed -i -E \
-              -e "s|^(%global commit)[[:space:]]+.*|\1      ${sha}|" \
-              -e "s|^(%global commitdate)[[:space:]]+.*|\1  ${commitdate}|" \
+              -e "s|^%global commit .*|%global commit      ${sha}|" \
+              -e "s|^%global commitdate .*|%global commitdate  ${commitdate}|" \
               "$spec"
-
             rpmspec -P "$spec" > /dev/null
-            updated=1
+            updated=true
           }
 
           bump noctalia-dev/umbriel umbriel.spec
           bump noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
 
-          if [ "$updated" -eq 1 ]; then
+          if [ "$updated" = true ]; then
             git add *.spec
             git -c user.name='github-actions[bot]' \
                 -c user.email='github-actions[bot]@users.noreply.github.com' \
