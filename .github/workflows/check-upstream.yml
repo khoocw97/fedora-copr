@@ -2,7 +2,9 @@ name: check-upstream
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    # 每天 00:00 Asia/Shanghai (UTC+8) = 前一天 16:00 UTC
+    # GitHub Actions cron 只认 UTC，所以这里写 16:00
+    - cron: '0 16 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -80,6 +82,7 @@ jobs:
 
           bump noctalia-dev/umbriel umbriel.spec
           bump noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
+          bump mroboff/vm-curator vm-curator.spec
 
           if [ "$updated" -eq 1 ]; then
             git add *.spec
