@@ -1,5 +1,5 @@
 # local make srpm
-SPECS  := umbriel.spec xdg-desktop-portal-umbriel.spec vm-curator.spec
+SPECS  := umbriel.spec xdg-desktop-portal-umbriel.spec vm-curator.spec mangowm.spec scenefx.spec
 TOPDIR := $(CURDIR)/rpmbuild
 
 srpm:

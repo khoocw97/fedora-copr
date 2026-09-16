@@ -83,6 +83,8 @@ jobs:
           bump noctalia-dev/umbriel umbriel.spec
           bump noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
           bump mroboff/vm-curator vm-curator.spec
+          bump mangowm/mango mangowm.spec
+          bump wlrfx/scenefx scenefx.spec
 
           if [ "$updated" -eq 1 ]; then
             git add *.spec
