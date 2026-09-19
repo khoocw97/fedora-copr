@@ -44,10 +44,19 @@ jobs:
           updated=0
 
           bump() {
-            local repo=$1 spec=$2
-            local sha cur isodate commitdate short
+            local forge=$1 repo=$2 spec=$3
+            local sha cur isodate commitdate short host api auth=()
 
-            sha=$(timeout 30 git ls-remote "https://github.com/${repo}" HEAD 2>/dev/null \
+            if [ "$forge" = codeberg ]; then
+              host="codeberg.org"
+              api="https://codeberg.org/api/v1/repos/${repo}/git/commits"
+            else
+              host="github.com"
+              api="https://api.github.com/repos/${repo}/commits"
+              auth=(-H "Authorization: Bearer ${GH_TOKEN}")
+            fi
+
+            sha=$(timeout 30 git ls-remote "https://${host}/${repo}" HEAD 2>/dev/null \
                   | awk '{print $1}' || true)
             if [ -z "$sha" ]; then
               echo "${spec}: failed to resolve upstream HEAD, skip" >&2
@@ -61,8 +70,8 @@ jobs:
             fi
 
             if ! isodate=$(curl -fsSL --retry 3 --retry-connrefused \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              "https://api.github.com/repos/${repo}/commits/${sha}" \
+              "${auth[@]}" \
+              "${api}/${sha}" \
               | python3 -c 'import json,sys; print(json.load(sys.stdin)["commit"]["author"]["date"])'); then
               echo "${spec}: failed to fetch commit date, skip" >&2
               return
@@ -80,11 +89,12 @@ jobs:
             updated=1
           }
 
-          bump noctalia-dev/umbriel umbriel.spec
-          bump noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
-          bump mroboff/vm-curator vm-curator.spec
-          bump mangowm/mango mangowm.spec
-          bump wlrfx/scenefx scenefx.spec
+          bump github noctalia-dev/umbriel umbriel.spec
+          bump github noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
+          bump github mroboff/vm-curator vm-curator.spec
+          bump github mangowm/mango mangowm.spec
+          bump github wlrfx/scenefx scenefx.spec
+          bump codeberg fairyglade/ly ly.spec
 
           if [ "$updated" -eq 1 ]; then
             git add *.spec
