@@ -27,12 +27,12 @@ unzip -q %{SOURCE0} -d .
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_datadir}/fonts/maple
-install -m 0644 MapleMono-NF-CN/*.ttf %{buildroot}%{_datadir}/fonts/maple/
+install -m 0644 *.ttf %{buildroot}%{_datadir}/fonts/maple/
 
 %files
-%license MapleMono-NF-CN/LICENSE.txt
+%license LICENSE.txt
 %{_datadir}/fonts/maple/*.ttf
 
 %changelog
-* Sun Sep 21 2026 Weng <khoocw97@gmail.com>
+* Mon Sep 21 2026 Weng <khoocw97@gmail.com>
 - Initial package: v7.9

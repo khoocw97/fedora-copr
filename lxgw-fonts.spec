@@ -24,7 +24,8 @@ LXGW font bundle: Bright GB/TC v5.528, NeoXiHeiPlus v1.305.
 %{_datadir}/fonts/lxgw。
 
 %prep
-# nothing to patch, sources are binary archives
+cp %{SOURCE3} ./OFL.txt
+cp %{SOURCE4} ./LICENSE.md
 
 %build
 # no build, prebuilt fonts
@@ -40,10 +41,10 @@ install -m 0644 %{_builddir}/LXGWBrightTC/*.ttf %{buildroot}%{_datadir}/fonts/lx
 install -m 0644 %{SOURCE2} %{buildroot}%{_datadir}/fonts/lxgw/
 
 %files
-%license %{SOURCE3}
-%license %{SOURCE4}
+%license OFL.txt
+%license LICENSE.md
 %{_datadir}/fonts/lxgw/*.ttf
 
 %changelog
-* Sun Sep 21 2026 Weng <khoocw97@gmail.com>
+* Mon Sep 21 2026 Weng <khoocw97@gmail.com>
 - Initial package: LxgwBright v5.528 (GB/TC) + LxgwNeoXiHeiPlus v1.305

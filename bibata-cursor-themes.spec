@@ -30,8 +30,8 @@ Bibata 是由 Abdulkaiz Khatri 手绘的开源、紧凑、Material 风格光标�
 mv bitmaps Bibata_Cursor-%{version}
 
 %build
-export PATH="%{_builddir}/.local/bin:$PATH"
-pip install --quiet clickgen
+export PATH="/builddir/.local/bin:%{_builddir}/.local/bin:$PATH"
+pip install --quiet --no-warn-script-location clickgen
 
 cd Bibata_Cursor-%{version}
 
@@ -61,5 +61,5 @@ done
 %{_datadir}/icons/Bibata-*
 
 %changelog
-* Mon Sep 14 2026 Weng <khoocw97@gmail.com>
+* Mon Sep 21 2026 Weng <khoocw97@gmail.com>
 - Initial package (6 normal variants only, right-hand excluded)
