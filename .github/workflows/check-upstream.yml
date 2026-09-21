@@ -94,6 +94,7 @@ jobs:
           bump github mroboff/vm-curator vm-curator.spec
           bump github mangowm/mango mangowm.spec
           bump github wlrfx/scenefx scenefx.spec
+          bump github Supreeeme/xwayland-satellite xwayland-satellite.spec
           bump codeberg fairyglade/ly ly.spec
 
           if [ "$updated" -eq 1 ]; then

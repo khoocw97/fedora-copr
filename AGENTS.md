@@ -20,7 +20,7 @@
 - `.github/workflows/check-upstream.yml` 每天 `00:00 Asia/Shanghai = 16:00 UTC` (`cron: '0 16 * * *'`)。
 - `bump()` 已支持双 forge：`bump github <org/repo> <spec>` 走 `api.github.com` + `GH_TOKEN`，`bump codeberg <org/repo> <spec>` 走 `codeberg.org/api/v1/...` 免 token。
 - 当前跟踪（commit 快照）：
-  - `github noctalia-dev/umbriel`, `noctalia-dev/xdg-desktop-portal-umbriel`, `mroboff/vm-curator`, `mangowm/mango`, `wlrfx/scenefx`
+  - `github noctalia-dev/umbriel`, `noctalia-dev/xdg-desktop-portal-umbriel`, `mroboff/vm-curator`, `mangowm/mango`, `wlrfx/scenefx`, `Supreeeme/xwayland-satellite`
   - `codeberg fairyglade/ly`
 - 固定版本不跟踪：`bibata-cursor-themes` (tag `v2.0.7`), `lxgw-fonts` (自定 `1.0`), `maple-mono-fonts` (`7.9`)。
 
@@ -54,6 +54,7 @@ BuildRequires: ...
 - **scenefx**: 纯 `meson`，`egl/gbm/glesv2/lcms2/libdrm>=2.4.129/pixman>=0.43` 等 F44 均有。
 - **ly**: `zig >=0.16.0`（F44 有 0.16.0），`pam-devel + pkgconfig(xcb) + glibc-devel + kernel-headers`（`translate-c` 解析系统头）。
 - **vm-curator**: `cargo + gcc + pkgconfig(libudev)`，`cargo build --locked --release` 需联网。
+- **xwayland-satellite**: `cargo + clang + gcc + pkgconfig(xcb)`，`cargo build --locked --release` 需联网，运行时需 `xorg-x11-server-Xwayland`。
 
 ## 6. 常见排坑
 
@@ -74,6 +75,7 @@ BuildRequires: ...
 | `vm-curator.spec` | `mroboff/vm-curator` | `20260811git.cdcf2ac` | 需联网 |
 | `mangowm.spec` | `mangowm/mango` | `d4b1e49` | 依赖自建 scenefx |
 | `scenefx.spec` | `wlrfx/scenefx` | `3606f3d` | 被 mangowm 依赖 |
+| `xwayland-satellite.spec` | `Supreeeme/xwayland-satellite` | `20260909git.add2795` | 需联网，含 steam 修复 |
 | `ly.spec` | `codeberg:fairyglade/ly` | `60be7ad` | zig 0.16 |
 | `bibata-cursor-themes.spec` | `ful1e5/Bibata_Cursor` | `2.0.7` tag | 6 变体，删 Right |
 | `lxgw-fonts.spec` | `lxgw/*` | `1.0` 自定 (Bright v5.528 + Neo v1.305) | 7z，需 p7zip |
