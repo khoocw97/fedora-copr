@@ -86,3 +86,4 @@ BuildRequires: ...
 - 新包默认 `Summary(zh_CN)` 双语，`%global debug_package %{nil}`，`%check` 跑 `--version`/`--help`。
 - 固定版本包不加入 `check-upstream` bump，手动改 `Version` + `Source`。
 - 新增字体/光标类 `BuildArch: noarch`，不需要 `ExclusiveArch`。
+- **阈值提醒**：当前 10 个 spec 平铺在根目录；当 `*.spec` 数量 >20 时提醒用户按类目迁至 `specs/<category>/`（如 `compositor/ fonts/ cursor/`），并同步更新 COPR 各 Package 的 `Spec file` 路径。

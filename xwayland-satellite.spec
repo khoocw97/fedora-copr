@@ -23,6 +23,7 @@ BuildRequires:  cargo
 BuildRequires:  clang
 BuildRequires:  gcc
 BuildRequires:  pkgconfig(xcb)
+BuildRequires:  pkgconfig(xcb-cursor)
 
 Requires:       xorg-x11-server-Xwayland
 
