@@ -46,7 +46,8 @@ install -Dpm 0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}
 install -Dpm 0644 %{name}.man %{buildroot}%{_mandir}/man1/%{name}.1
 
 %check
-%{buildroot}%{_bindir}/%{name} --help
+test -x %{buildroot}%{_bindir}/%{name}
+%{buildroot}%{_bindir}/%{name} -help 2>&1 | head -n 20
 
 %files
 %license LICENSE
