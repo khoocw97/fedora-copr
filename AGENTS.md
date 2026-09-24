@@ -64,6 +64,7 @@ BuildRequires: ...
 | `File not found: .../BUILDROOT/.../OFL.txt` (lxgw) | `%license %{SOURCE3}` 在 `%files` 会被当 BUILDROOT 相对路径 | `%prep` 先 `cp %{SOURCE3} ./OFL.txt`，`%files` 用 `%license OFL.txt` |
 | `install: cannot stat 'MapleMono-NF-CN/*.ttf'` (maple) | zip 解压后文件在当前目录根下，非子目录 | `%install` 改 `install -m 0644 *.ttf ...`，`%license LICENSE.txt` 同理 |
 | `bogus date in %changelog` | 星期与日期不匹配（`Sun Sep 21 2026` 实际是 Monday） | 用 `date -d YYYY-MM-DD +%A` 校验，改为 `Mon Sep 21 2026` |
+| `Installed (but unpackaged) file(s)` | 上游给 `libscenefx` 加了 `soversion`，打出 `0.5.0 / .so.0 / .so` 三文件 | 版本化 `.so.0*` 归主包，无版本号 `.so` 归 `-devel` |
 | `scenefx` 找不到 | Fedora 官方无 `scenefx-0.5`，需同 COPR 自建 | 先单独构建 `scenefx.spec`，再建 `mangowm` |
 
 ## 7. 当前 Spec 清单

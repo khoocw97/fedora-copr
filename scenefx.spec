@@ -68,12 +68,16 @@ Headers and pkg-config files for developing against %{name}.
 %files
 %license LICENSE
 %doc README.md
-%{_libdir}/libscenefx-0.5.so
+%{_libdir}/libscenefx-0.5.so.0*
 
 %files devel
 %{_includedir}/scenefx-0.5/
 %{_libdir}/pkgconfig/scenefx-0.5.pc
+%{_libdir}/libscenefx-0.5.so
 
 %changelog
+* Thu Sep 24 2026 Weng <khoocw97@gmail.com>
+- Upstream uses versioned name libscenefx-0.5.so.0.5.0 + soname .so.0; unversioned .so belongs in -devel. See https://github.com/wlrfx/scenefx/issues/219
+
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
 - Initial package
