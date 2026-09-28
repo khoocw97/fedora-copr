@@ -49,7 +49,7 @@ BuildRequires: ...
 
 ## 5. 已验证的上游依赖
 
-- **umbriel**: `wlroots-0.20 >=0.20.1`（F44 `wlroots 0.20.2` 满足），`wayland-protocols >=1.47` 等。
+- **umbriel**: `wlroots-0.20 >=0.20.1`（F44 `wlroots 0.20.2` 满足），`wayland-protocols >=1.47` 等；`c0cfb53` 起 `%{_datadir}/umbriel/shaders/` 取消，改为 `effects/` 预设（`%{_datadir}/umbriel/effects/`）。
 - **mangowm**: 需 `xcb-randr`（上游 `meson.build` 显式依赖，参考 spec 漏了）；删 `Requires: vulkan-loader`（由 `wlroots` 自动带）；`Recommends: xdg-desktop-portal-wlr`。
 - **scenefx**: 纯 `meson`，`egl/gbm/glesv2/lcms2/libdrm>=2.4.129/pixman>=0.43` 等 F44 均有。
 - **ly**: `zig >=0.16.0`（F44 有 0.16.0），`pam-devel + pkgconfig(xcb) + glibc-devel + kernel-headers`（`translate-c` 解析系统头）。
@@ -65,6 +65,7 @@ BuildRequires: ...
 | `install: cannot stat 'MapleMono-NF-CN/*.ttf'` (maple) | zip 解压后文件在当前目录根下，非子目录 | `%install` 改 `install -m 0644 *.ttf ...`，`%license LICENSE.txt` 同理 |
 | `bogus date in %changelog` | 星期与日期不匹配（`Sun Sep 21 2026` 实际是 Monday） | 用 `date -d YYYY-MM-DD +%A` 校验，改为 `Mon Sep 21 2026` |
 | `Installed (but unpackaged) file(s)` | 上游给 `libscenefx` 加了 `soversion`，打出 `0.5.0 / .so.0 / .so` 三文件 | 版本化 `.so.0*` 归主包，无版本号 `.so` 归 `-devel` |
+| `Directory not found: .../usr/share/umbriel/shaders` (umbriel `c0cfb53`) | 上游 `meson.build` 取消 `shaders/`，改为 `examples/effects/*/shader.glsl + effect.toml` 装到 `%{_datadir}/umbriel/effects/` | `%files` 改 `%{_datadir}/umbriel/shaders/` → `%{_datadir}/umbriel/effects/` |
 | `scenefx` 找不到 | Fedora 官方无 `scenefx-0.5`，需同 COPR 自建 | 先单独构建 `scenefx.spec`，再建 `mangowm` |
 
 ## 7. 当前 Spec 清单

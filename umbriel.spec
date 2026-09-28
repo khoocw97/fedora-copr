@@ -91,12 +91,14 @@ test -x %{buildroot}%{_bindir}/start-umbriel
 %{_bindir}/umbriel
 %{_bindir}/start-umbriel
 %config(noreplace) %{_datadir}/umbriel/config.toml
-%{_datadir}/umbriel/shaders/
+%{_datadir}/umbriel/effects/
 %{_datadir}/wayland-sessions/umbriel.desktop
 %{_userunitdir}/umbriel.service
 %{_userunitdir}/umbriel-session.target
 %{_userunitdir}/umbriel-shutdown.target
 
 %changelog
+* Mon Sep 28 2026 Weng <khoocw97@gmail.com>
+- %files: shaders/ -> effects/ (upstream c0cfb53 dropped shaders, installs examples/effects presets)
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
 - Initial package
