@@ -56,8 +56,10 @@ jobs:
               auth=(-H "Authorization: Bearer ${GH_TOKEN}")
             fi
 
+            # NOTE: Codeberg ls-remote also returns a refs/remotes/origin/HEAD
+            # line; filter strictly on HEAD.
             sha=$(timeout 30 git ls-remote "https://${host}/${repo}" HEAD 2>/dev/null \
-                  | awk '{print $1}' || true)
+                  | awk '$2 == "HEAD" {print $1}' || true)
             if [ -z "$sha" ]; then
               echo "${spec}: failed to resolve upstream HEAD, skip" >&2
               return
@@ -96,6 +98,7 @@ jobs:
           bump github wlrfx/scenefx scenefx.spec
           bump github Supreeeme/xwayland-satellite xwayland-satellite.spec
           bump codeberg fairyglade/ly ly.spec
+          bump codeberg dnkl/fuzzel fuzzel.spec
 
           if [ "$updated" -eq 1 ]; then
             git add *.spec

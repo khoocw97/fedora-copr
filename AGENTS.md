@@ -21,7 +21,7 @@
 - `bump()` 已支持双 forge：`bump github <org/repo> <spec>` 走 `api.github.com` + `GH_TOKEN`，`bump codeberg <org/repo> <spec>` 走 `codeberg.org/api/v1/...` 免 token。
 - 当前跟踪（commit 快照）：
   - `github noctalia-dev/umbriel`, `noctalia-dev/xdg-desktop-portal-umbriel`, `mroboff/vm-curator`, `mangowm/mango`, `wlrfx/scenefx`, `Supreeeme/xwayland-satellite`
-  - `codeberg fairyglade/ly`
+  - `codeberg fairyglade/ly`, `dnkl/fuzzel`
 - 固定版本不跟踪：`bibata-cursor-themes` (tag `v2.0.7`), `lxgw-fonts` (自定 `1.0`), `maple-mono-fonts` (`7.9`)。
 
 ## 4. Spec 模板（以 `umbriel.spec` 为准）
@@ -79,6 +79,7 @@ BuildRequires: ...
 | `scenefx.spec` | `wlrfx/scenefx` | `3606f3d` | 被 mangowm 依赖 |
 | `xwayland-satellite.spec` | `Supreeeme/xwayland-satellite` | `20260909git.add2795` | 需联网，含 steam 修复 |
 | `ly.spec` | `codeberg:fairyglade/ly` | `60be7ad` | zig 0.16 |
+| `fuzzel.spec` | `codeberg:dnkl/fuzzel` | `20260923git.815d438` | meson，system-nanosvg |
 | `bibata-cursor-themes.spec` | `ful1e5/Bibata_Cursor` | `2.0.7` tag | 6 变体，删 Right |
 | `lxgw-fonts.spec` | `lxgw/*` | `1.0` 自定 (Bright v5.528 + Neo v1.305) | 7z，需 p7zip |
 | `maple-mono-fonts.spec` | `subframe7536/maple-font` | `7.9` tag | NF-CN zip |
