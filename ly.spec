@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      f802d3bcb5b65c105fd39356fd2bc983c7ded51c
+%global commit      55de3bc26ccb3f5fa610c22821ad3d3c2ae0a6db
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20260929
+%global commitdate  20260930
 
 Name:           ly
 Version:        %{commitdate}git.%{shortcommit}
