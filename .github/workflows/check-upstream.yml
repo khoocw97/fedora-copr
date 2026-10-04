@@ -97,7 +97,8 @@ jobs:
           bump github mangowm/mango mangowm.spec
           bump github wlrfx/scenefx scenefx.spec
           bump github Supreeeme/xwayland-satellite xwayland-satellite.spec
-          bump codeberg fairyglade/ly ly.spec
+          # ly pinned at 55de3bc: f1fc335+ needs zig >=0.17.0, F44 only has 0.16.0
+          # bump codeberg fairyglade/ly ly.spec
           bump codeberg dnkl/fuzzel fuzzel.spec
 
           if [ "$updated" -eq 1 ]; then
