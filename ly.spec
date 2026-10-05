@@ -19,7 +19,8 @@ ExclusiveArch:  none
 ExclusiveArch:  x86_64 aarch64
 %endif
 
-BuildRequires:  zig >= 0.16.0
+BuildRequires:  zig >= 0.17.0
+# Upstream f1fc335+ requires zig 0.17
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  pam-devel
 BuildRequires:  pkgconfig(xcb)
@@ -66,5 +67,7 @@ zig build installexe -Doptimize=ReleaseSafe \
 %{_unitdir}/ly-kmsconvt@.service
 
 %changelog
+* Mon Oct 05 2026 Weng <khoocw97@gmail.com>
+- Require zig >= 0.17.0 (upstream f1fc335+); document build block on F44 zig 0.16
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
 - Initial package

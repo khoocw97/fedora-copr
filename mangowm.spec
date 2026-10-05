@@ -77,18 +77,23 @@ MangoWM 是一个基于 dwl 的实用强大的 Wayland 合成器，保持轻量�
 %check
 %{buildroot}%{_bindir}/mango -v
 test -x %{buildroot}%{_bindir}/mmsg
+test -x %{buildroot}%{_bindir}/mangonag
 
 %files
 %license LICENSE
 %doc README.md
 %{_bindir}/mango
 %{_bindir}/mmsg
+%{_bindir}/mangonag
 %{_mandir}/man1/mmsg.1*
+%{_mandir}/man1/mangonag.1*
 %config(noreplace) %{_sysconfdir}/mango/config.conf
 %{_datadir}/wayland-sessions/mango.desktop
 %config(noreplace) %{_datadir}/xdg-desktop-portal/mango-portals.conf
 %{_userunitdir}/mango-session.target
 
 %changelog
+* Mon Oct 05 2026 Weng <khoocw97@gmail.com>
+- Package mangonag binary and man page
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
 - Initial package
