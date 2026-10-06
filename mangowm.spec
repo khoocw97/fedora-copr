@@ -88,11 +88,14 @@ test -x %{buildroot}%{_bindir}/mangonag
 %{_mandir}/man1/mmsg.1*
 %{_mandir}/man1/mangonag.1*
 %config(noreplace) %{_sysconfdir}/mango/config.conf
+%config(noreplace) %{_sysconfdir}/mango/config.toml
 %{_datadir}/wayland-sessions/mango.desktop
 %config(noreplace) %{_datadir}/xdg-desktop-portal/mango-portals.conf
 %{_userunitdir}/mango-session.target
 
 %changelog
+* Mon Oct 05 2026 Weng <khoocw97@gmail.com>
+- Package new /etc/mango/config.toml
 * Mon Oct 05 2026 Weng <khoocw97@gmail.com>
 - Package mangonag binary and man page
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
