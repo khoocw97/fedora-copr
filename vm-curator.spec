@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      623e59a8809eb686f94fad8a2dd88891ecaa56b6
+%global commit      a31e32e528bd8dac77da51bee8d9aa41642fb3bb
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261013
+%global commitdate  20261017
 
 Name:           vm-curator
 Version:        %{commitdate}git.%{shortcommit}
