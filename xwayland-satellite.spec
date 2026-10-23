@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      97a89cec53eb4f8788386a574450dd94c0538754
+%global commit      e54e34c11758696240182549fb17d58473f8a3d4
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261015
+%global commitdate  20261023
 
 Name:           xwayland-satellite
 Version:        %{commitdate}git.%{shortcommit}
