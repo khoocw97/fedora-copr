@@ -30,6 +30,7 @@ BuildRequires:  pkgconfig(gbm)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(lcms2)
 BuildRequires:  pkgconfig(libdrm) >= 2.4.129
+BuildRequires:  pkgconfig(libeis-1.0) >= 1.3
 BuildRequires:  pkgconfig(libinput) >= 1.23
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(nlohmann_json)
@@ -98,6 +99,8 @@ test -x %{buildroot}%{_bindir}/start-umbriel
 %{_userunitdir}/umbriel-shutdown.target
 
 %changelog
+* Tue Oct 27 2026 Weng <khoocw97@gmail.com>
+- Add BuildRequires pkgconfig(libeis-1.0) >= 1.3 (upstream fd0a6e9 new dependency)
 * Mon Sep 28 2026 Weng <khoocw97@gmail.com>
 - %files: shaders/ -> effects/ (upstream c0cfb53 dropped shaders, installs examples/effects presets)
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
