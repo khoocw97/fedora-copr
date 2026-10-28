@@ -20,6 +20,7 @@ BuildRequires:  pkgconfig(cairo)
 BuildRequires:  pkgconfig(gbm)
 BuildRequires:  pkgconfig(gtk4) >= 4.12
 BuildRequires:  pkgconfig(libdrm)
+BuildRequires:  pkgconfig(libei-1.0) >= 1.3
 BuildRequires:  pkgconfig(libpipewire-0.3)
 BuildRequires:  pkgconfig(nlohmann_json)
 BuildRequires:  pkgconfig(sdbus-c++) >= 2.0
@@ -70,5 +71,7 @@ test -x %{buildroot}%{_libexecdir}/umbriel-share-picker
 %{_userunitdir}/xdg-desktop-portal-umbriel.service
 
 %changelog
+* Wed Oct 28 2026 Weng <khoocw97@gmail.com>
+- Add BuildRequires pkgconfig(libei-1.0) >= 1.3 (upstream 707b548 new dependency)
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
 - Initial package
