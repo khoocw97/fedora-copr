@@ -44,7 +44,7 @@ BuildRequires:  pkgconfig(wlroots-0.20) >= 0.20.1
 BuildRequires:  pkgconfig(xkbcommon)
 BuildRequires:  pkgconfig(jemalloc)
 
-Requires:     xwayland-satellite
+Requires:     xorg-x11-server-Xwayland
 Requires:     xdg-desktop-portal-umbriel
 
 %description
@@ -99,6 +99,8 @@ test -x %{buildroot}%{_bindir}/start-umbriel
 %{_userunitdir}/umbriel-shutdown.target
 
 %changelog
+* Sat Oct 31 2026 Weng <khoocw97@gmail.com>
+- Requires: xwayland-satellite -> xorg-x11-server-Xwayland (upstream 16d50317 replaced satellite with native wlroots Xwayland)
 * Tue Oct 27 2026 Weng <khoocw97@gmail.com>
 - Add BuildRequires pkgconfig(libeis-1.0) >= 1.3 (upstream fd0a6e9 new dependency)
 * Mon Sep 28 2026 Weng <khoocw97@gmail.com>
