@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      bef6e5e2566096cc0fd1b543c7830b4a1cd1d3b6
+%global commit      54563add31e75cbaa30a0572d4fb10819cf4da5f
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261031
+%global commitdate  20261108
 
 Name:           scenefx
 Version:        %{commitdate}git.%{shortcommit}
