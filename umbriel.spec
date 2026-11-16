@@ -1,6 +1,6 @@
 %global debug_package %{nil}
 
-%global commit      70b3724f3a192b3f05562f3c28df84564df5fa06
+%global commit      1bbbf15d25b2a338c7b6d52863d9f6efaf346ac
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 %global commitdate  20261115
 
@@ -29,9 +29,11 @@ BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(gbm)
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(lcms2)
+BuildRequires:  pkgconfig(libdisplay-info) >= 0.3.0
 BuildRequires:  pkgconfig(libdrm) >= 2.4.129
 BuildRequires:  pkgconfig(libeis-1.0) >= 1.3
-BuildRequires:  pkgconfig(libinput) >= 1.23
+BuildRequires:  pkgconfig(libinput) >= 1.29
+BuildRequires:  pkgconfig(libsystemd) >= 243
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(nlohmann_json)
 BuildRequires:  pkgconfig(pangocairo)
@@ -41,9 +43,16 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.47
 BuildRequires:  pkgconfig(wayland-server) >= 1.24
 BuildRequires:  pkgconfig(wlroots-0.20) >= 0.20.1
-BuildRequires:  pkgconfig(xkbcommon)
+BuildRequires:  pkgconfig(wlroots-0.20) < 0.21
+BuildRequires:  pkgconfig(xcb)
+BuildRequires:  pkgconfig(xcb-ewmh)
+BuildRequires:  pkgconfig(xcb-icccm)
+BuildRequires:  pkgconfig(xcb-randr)
+BuildRequires:  pkgconfig(xcb-shape)
+BuildRequires:  pkgconfig(xkbcommon) >= 1.10
 BuildRequires:  pkgconfig(jemalloc)
 
+Requires:     systemd >= 254
 Requires:     xorg-x11-server-Xwayland
 Requires:     xdg-desktop-portal-umbriel
 
@@ -99,6 +108,10 @@ test -x %{buildroot}%{_bindir}/start-umbriel
 %{_userunitdir}/umbriel-shutdown.target
 
 %changelog
+* Tue Nov 17 2026 Weng <khoocw97@gmail.com>
+- Add BuildRequires libdisplay-info >= 0.3.0, libsystemd >= 243, xcb, xcb-icccm, xcb-ewmh, xcb-shape, xcb-randr (upstream meson.build)
+- BuildRequires libinput >= 1.29, xkbcommon >= 1.10, wlroots-0.20 < 0.21 (upstream PACKAGING.md)
+- Requires: systemd >= 254 (start-umbriel uses systemd-run)
 * Sat Oct 31 2026 Weng <khoocw97@gmail.com>
 - Requires: xwayland-satellite -> xorg-x11-server-Xwayland (upstream 16d50317 replaced satellite with native wlroots Xwayland)
 * Tue Oct 27 2026 Weng <khoocw97@gmail.com>
