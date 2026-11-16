@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      56951426eb9931db3f1c57348f226c2427fba4f3
+%global commit      116e9485b39552a39e4e6088ff7cbe50e7504829
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261106
+%global commitdate  20261115
 
 Name:           xdg-desktop-portal-umbriel
 Version:        %{commitdate}git.%{shortcommit}
@@ -29,6 +29,7 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.39
 
 Requires:       xdg-desktop-portal
+Recommends:     xdg-desktop-portal-gtk
 
 %description
 An xdg-desktop-portal backend for the Umbriel compositor, implementing
@@ -66,11 +67,14 @@ test -x %{buildroot}%{_libexecdir}/umbriel-share-picker
 %{_libexecdir}/xdg-desktop-portal-umbriel
 %{_libexecdir}/umbriel-share-picker
 %{_datadir}/xdg-desktop-portal/portals/umbriel.portal
-%config(noreplace) %{_datadir}/xdg-desktop-portal/umbriel-portals.conf
+%config %{_datadir}/xdg-desktop-portal/umbriel-portals.conf
 %{_datadir}/dbus-1/services/org.freedesktop.impl.portal.desktop.umbriel.service
 %{_userunitdir}/xdg-desktop-portal-umbriel.service
 
 %changelog
+* Tue Nov 17 2026 Weng <khoocw97@gmail.com>
+- prefers Luciole FileChooser with gtk fallback, %config instead of %config(noreplace)
+- Recommends: xdg-desktop-portal-gtk (fallback for unimplemented interfaces)
 * Wed Oct 28 2026 Weng <khoocw97@gmail.com>
 - Add BuildRequires pkgconfig(libei-1.0) >= 1.3 (upstream 707b548 new dependency)
 * Mon Sep 14 2026 Weng <khoocw97@gmail.com>
