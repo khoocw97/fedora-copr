@@ -1,92 +1,626 @@
-# fedora-copr — Agent Notes
+# AGENTS.md
 
-> 个人 COPR 打包约定与排坑记录，同步于 `khoocw97/software`。
+# Project Development Rules & AI Agent Instructions
 
-## 1. 项目与构建流
+## 1. Core Principles
 
-- **仓库**: `khoocw97/fedora-copr`，每个 `*.spec` 对应 COPR 一个 Package，`Source` 直链上游（GitHub/Codeberg）。
-- **SRPM**: 走 `.copr/Makefile` 通用 `srpm` target：`spectool -g --directory $tmpd/SOURCES <spec>` → `rpmbuild -bs`。COPR 不用 `rpkg`/`dist-git`。
-- **批量本地**: 顶层 `Makefile` 的 `SPECS := ...` 仅用于 `make srpm` 本地验证。
-- **COPR 顺序**: `scenefx` 必须先单独构建成功，`mangowm` 才能解析 `pkgconfig(scenefx-0.5)`。其它包无此依赖。
+You are an AI development agent working on this project.
 
-## 2. 网络
+You MUST follow these rules at all times. These rules take priority over your own preferences, assumptions, shortcuts, and implementation choices.
 
-- COPR 构建期默认 `enable_net: False`（mock `--resolv-conf=off`），`cargo build`/`zig fetch`/`pip install` 会 DNS 失败。
-- 已在 COPR 项目 Settings 打开 **Enable internet access during builds**（项目级，对自动/手动构建均生效）。`vm-curator` / `ly` / `bibata` 依赖它。
-- 不想开网的替代：`cargo vendor` / `zig vendor` 打进 SRPM + `--offline`，代价是 SRPM 变大。
+The project follows four fundamental principles:
 
-## 3. check-upstream
+1. **Fedora Standards First** — All RPM packages and SPEC files MUST strictly follow official Fedora packaging standards.
+2. **Upstream First, Approval Required** — Before making ANY modification, you MUST investigate and verify the relevant upstream source, explain your findings, and obtain explicit approval from the project owner.
+3. **No Automatic Build Verification** — After modifications, package building, RPM building, testing, and validation MUST NOT be performed unless explicitly requested by the project owner.
+4. **AGENTS.md Protection** — This file is protected. You MUST NEVER modify, overwrite, delete, rename, move, or replace this file unless explicitly instructed by the project owner.
 
-- `.github/workflows/check-upstream.yml` 每天 `00:00 Asia/Shanghai = 16:00 UTC` (`cron: '0 16 * * *'`)。
-- `bump()` 已支持双 forge：`bump github <org/repo> <spec>` 走 `api.github.com` + `GH_TOKEN`，`bump codeberg <org/repo> <spec>` 走 `codeberg.org/api/v1/...` 免 token。
-- 当前跟踪（commit 快照）：
-  - `github noctalia-dev/umbriel`, `noctalia-dev/xdg-desktop-portal-umbriel`, `mroboff/vm-curator`, `mangowm/mango`, `wlrfx/scenefx`, `Supreeeme/xwayland-satellite`
-  - `codeberg fairyglade/ly`, `dnkl/fuzzel`
-- 固定版本不跟踪：`bibata-cursor-themes` (tag `v2.0.7`), `lxgw-fonts` (自定 `1.0`), `maple-mono-fonts` (`7.9`)。
+Never assume that a technically valid solution is automatically an acceptable solution.
 
-## 4. Spec 模板（以 `umbriel.spec` 为准）
+The project owner has final authority over all implementation decisions.
 
-```spec
-%global debug_package %{nil}
-%global commit <sha>
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate YYYYMMDD
-Name: foo
-Version: %{commitdate}git.%{shortcommit}
-License: SPDX
-URL: https://...
-Source0: %{url}/archive/%{commit}.tar.gz#/%{name}-%{version}.tar.gz
-ExclusiveArch: x86_64 aarch64   # 仅限编译型；noarch 包不用
-BuildRequires: ...
-%autosetup -n %{name}-%{commit}  # Codeberg 归档是 %{name}/，则 -n %{name}
-%meson / %build ...
-%check  # 轻量可执行检查
-%files  # %license / %doc 明确
-```
+---
 
-- 纯二进制字体/光标：`BuildArch: noarch`，`Version` 固定 tag，无 `commit`。
-- Codeberg 归档顶层是 `ly/` 而非 `ly-<sha>`，注意 `%autosetup -n`。
+## 2. AGENTS.md Protection Policy
 
-## 5. 已验证的上游依赖
+**AGENTS.md is a protected file.**
 
-- **umbriel**: `wlroots-0.20 >=0.20.1`（F44 `wlroots 0.20.2` 满足），`wayland-protocols >=1.47` 等；`c0cfb53` 起 `%{_datadir}/umbriel/shaders/` 取消，改为 `effects/` 预设（`%{_datadir}/umbriel/effects/`）。
-- **mangowm**: 需 `xcb-randr`（上游 `meson.build` 显式依赖，参考 spec 漏了）；删 `Requires: vulkan-loader`（由 `wlroots` 自动带）；`Recommends: xdg-desktop-portal-wlr`。
-- **scenefx**: 纯 `meson`，`egl/gbm/glesv2/lcms2/libdrm>=2.4.129/pixman>=0.43` 等 F44 均有。
-- **ly**: `zig >=0.16.0`（F44 有 0.16.0），`pam-devel + pkgconfig(xcb) + glibc-devel + kernel-headers`（`translate-c` 解析系统头）。
-- **vm-curator**: `cargo + gcc + pkgconfig(libudev)`，`cargo build --locked --release` 需联网。
-- **xwayland-satellite**: `cargo + clang + gcc + pkgconfig(xcb)`，`cargo build --locked --release` 需联网，运行时需 `xorg-x11-server-Xwayland`。
+You MUST NOT modify this file without explicit authorization from the project owner.
 
-## 6. 常见排坑
+This restriction includes:
 
-| 现象 | 根因 | 修法 |
-|------|------|------|
-| `ctgen: command not found` (bibata) | `pip` 装到 `/builddir/.local/bin`，spec 只加了 `%{_builddir}/.local/bin` | `export PATH="/builddir/.local/bin:%{_builddir}/.local/bin:$PATH"` + `pip install --no-warn-script-location` |
-| `File not found: .../BUILDROOT/.../OFL.txt` (lxgw) | `%license %{SOURCE3}` 在 `%files` 会被当 BUILDROOT 相对路径 | `%prep` 先 `cp %{SOURCE3} ./OFL.txt`，`%files` 用 `%license OFL.txt` |
-| `install: cannot stat 'MapleMono-NF-CN/*.ttf'` (maple) | zip 解压后文件在当前目录根下，非子目录 | `%install` 改 `install -m 0644 *.ttf ...`，`%license LICENSE.txt` 同理 |
-| `bogus date in %changelog` | 星期与日期不匹配（`Sun Sep 21 2026` 实际是 Monday） | 用 `date -d YYYY-MM-DD +%A` 校验，改为 `Mon Sep 21 2026` |
-| `Installed (but unpackaged) file(s)` | 上游给 `libscenefx` 加了 `soversion`，打出 `0.5.0 / .so.0 / .so` 三文件 | 版本化 `.so.0*` 归主包，无版本号 `.so` 归 `-devel` |
-| `Directory not found: .../usr/share/umbriel/shaders` (umbriel `c0cfb53`) | 上游 `meson.build` 取消 `shaders/`，改为 `examples/effects/*/shader.glsl + effect.toml` 装到 `%{_datadir}/umbriel/effects/` | `%files` 改 `%{_datadir}/umbriel/shaders/` → `%{_datadir}/umbriel/effects/` |
-| `scenefx` 找不到 | Fedora 官方无 `scenefx-0.5`，需同 COPR 自建 | 先单独构建 `scenefx.spec`，再建 `mangowm` |
+- Changing existing instructions.
+- Adding new instructions.
+- Removing existing instructions.
+- Reorganizing or rewriting sections.
+- Modifying formatting or Markdown structure.
+- Automatically updating instructions.
+- Applying suggestions that modify this file.
+- Modifying this file as part of automated cleanup or refactoring.
+- Replacing the file with another version.
+- Deleting or renaming the file.
 
-## 7. 当前 Spec 清单
+Even if you believe an instruction is incorrect, outdated, contradictory, or could be improved, you MUST NOT modify AGENTS.md independently.
 
-| Spec | 上游 | 版本策略 | 备注 |
-|------|------|----------|------|
-| `umbriel.spec` | `noctalia-dev/umbriel` | commit 快照 |  |
-| `xdg-desktop-portal-umbriel.spec` | 同上 | commit 快照 |  |
-| `vm-curator.spec` | `mroboff/vm-curator` | `20260811git.cdcf2ac` | 需联网 |
-| `mangowm.spec` | `mangowm/mango` | `d4b1e49` | 依赖自建 scenefx |
-| `scenefx.spec` | `wlrfx/scenefx` | `3606f3d` | 被 mangowm 依赖 |
-| `xwayland-satellite.spec` | `Supreeeme/xwayland-satellite` | `20260909git.add2795` | 需联网，含 steam 修复 |
-| `ly.spec` | `codeberg:fairyglade/ly` | `60be7ad` | zig 0.16 |
-| `fuzzel.spec` | `codeberg:dnkl/fuzzel` | `20260923git.815d438` | meson，system-nanosvg |
-| `bibata-cursor-themes.spec` | `ful1e5/Bibata_Cursor` | `2.0.7` tag | 6 变体，删 Right |
-| `lxgw-fonts.spec` | `lxgw/*` | `1.0` 自定 (Bright v5.528 + Neo v1.305) | 7z，需 p7zip |
-| `maple-mono-fonts.spec` | `subframe7536/maple-font` | `7.9` tag | NF-CN zip |
+### 2.1 When Changes Are Necessary
 
-## 8. 待办 / 约定
+If changes to AGENTS.md appear necessary:
 
-- 新包默认 `Summary(zh_CN)` 双语，`%global debug_package %{nil}`，`%check` 跑 `--version`/`--help`。
-- 固定版本包不加入 `check-upstream` bump，手动改 `Version` + `Source`。
-- 新增字体/光标类 `BuildArch: noarch`，不需要 `ExclusiveArch`。
-- **阈值提醒**：当前 10 个 spec 平铺在根目录；当 `*.spec` 数量 >20 时提醒用户按类目迁至 `specs/<category>/`（如 `compositor/ fonts/ cursor/`），并同步更新 COPR 各 Package 的 `Spec file` 路径。
+1. Explain why the change is necessary.
+2. Describe the exact proposed changes.
+3. Identify the affected sections.
+4. Present the proposed content.
+5. Wait for explicit authorization from the project owner.
+
+Only an explicit request from the project owner to modify AGENTS.md grants permission to do so.
+
+General approval to modify the project does NOT authorize modifications to AGENTS.md.
+
+**This protection rule takes precedence over all other project instructions, automated workflows, and agent preferences.**
+
+Without explicit authorization, AGENTS.md MUST remain untouched.
+
+---
+
+## 3. Fedora RPM Packaging Standards
+
+### 3.1 Mandatory Fedora Compliance
+
+All RPM packaging MUST follow the official Fedora Packaging Guidelines.
+
+Official references:
+
+- Fedora Packaging Guidelines: https://docs.fedoraproject.org/en-US/packaging-guidelines/
+- Fedora Packaging Review Guidelines: https://fedoraproject.org/wiki/Packaging:ReviewGuidelines
+- Fedora Naming Guidelines: https://fedoraproject.org/wiki/Packaging:NamingGuidelines
+- Fedora Licensing Guidelines: https://fedoraproject.org/wiki/Packaging:LicensingGuidelines
+- Fedora RPM SPEC Style Guide: https://fedoraproject.org/wiki/SpecStyleGuide
+- Fedora RPM Macros: https://docs.fedoraproject.org/en-US/packaging-guidelines/RPMMacros/
+
+The official Fedora documentation is the primary authority.
+
+If different sources conflict, follow the current official Fedora guidelines.
+
+Do not rely on outdated documentation when newer official guidelines are available.
+
+Always consider the target Fedora release when determining applicable packaging requirements.
+
+### 3.2 SPEC File Requirements
+
+Every SPEC file MUST follow Fedora conventions.
+
+Mandatory requirements:
+
+- Use standard Fedora RPM SPEC syntax.
+- Use Fedora-supported RPM macros.
+- Follow Fedora package naming conventions.
+- Use correct `Name`, `Version`, `Release`, `Summary`, `License`, and `URL` fields.
+- Use appropriate `Source` and `Patch` declarations.
+- Declare all necessary build dependencies using `BuildRequires`.
+- Declare runtime dependencies using appropriate dependency tags.
+- Follow Fedora conventions for `%prep`, `%build`, `%install`, `%check`, and `%files`.
+- Use appropriate Fedora macros instead of unnecessary hardcoded filesystem paths.
+- Use `%license` for upstream-provided license files.
+- Use `%doc` for appropriate documentation.
+- Follow Fedora conventions for subpackages and dependency relationships.
+- Follow Fedora scriptlet and file ownership requirements.
+- Preserve upstream source integrity.
+- Ensure the SPEC file is readable, maintainable, and understandable.
+
+Follow the applicable Fedora guidelines for the target Fedora release.
+
+### 3.3 Forbidden Packaging Practices
+
+Unless explicitly permitted by Fedora guidelines, DO NOT:
+
+- Copy Debian packaging instructions into RPM SPEC files.
+- Use Arch Linux PKGBUILD conventions.
+- Use openSUSE-specific RPM macros that are unavailable in Fedora.
+- Introduce distribution-specific macros from other distributions.
+- Hardcode paths when appropriate Fedora RPM macros exist.
+- Invent dependencies without verifying their actual requirements.
+- Guess license identifiers.
+- Blindly copy SPEC files from COPR, third-party repositories, or other distributions.
+- Introduce unnecessary scriptlets.
+- Add unnecessary patches to work around problems without investigating upstream.
+- Add unnecessary dependencies merely to simplify packaging.
+- Ignore Fedora package review requirements.
+
+A SPEC file that successfully builds is NOT necessarily Fedora-compliant.
+
+Correctness and Fedora compliance are both mandatory.
+
+### 3.4 SPEC File Research Requirements
+
+Before proposing a new SPEC file or modifying an existing one, investigate:
+
+1. Upstream source and release version.
+2. Actual project license and license files.
+3. Build system and build dependencies.
+4. Runtime dependencies.
+5. Installation paths.
+6. Binary, library, configuration, and documentation locations.
+7. Required patches and their upstream status.
+8. Fedora packaging guidelines applicable to the package.
+9. Architecture support.
+10. RPM macros and scriptlet requirements.
+
+Do not assume dependencies, installation paths, or build procedures.
+
+Base packaging decisions on actual upstream source and official Fedora documentation.
+
+### 3.5 Packaging Tool Policy
+
+The following tools may be relevant when the owner explicitly requests packaging verification:
+
+- `rpmlint`
+- `rpmbuild`
+- `mock`
+- `rpmdevtools`
+
+Their execution is NOT automatic.
+
+See Section 8 for build and verification restrictions.
+
+---
+
+## 4. Upstream Verification Is Mandatory
+
+### 4.1 Verify Before Every Modification
+
+Before modifying ANY project file, you MUST investigate the relevant upstream project.
+
+This applies to:
+
+- RPM SPEC files.
+- Build scripts.
+- Installation scripts.
+- Configuration files.
+- Systemd services and overrides.
+- Patches.
+- Package dependencies.
+- Build configurations.
+- Kernel and system configurations.
+- Desktop environment configurations.
+- CI/CD workflows.
+- Repository metadata.
+- Documentation describing implementation behavior.
+
+You MUST NOT skip upstream verification because:
+
+- The modification looks trivial.
+- The solution seems obvious.
+- You have seen a similar implementation elsewhere.
+- You already know how the software works.
+- The requested change appears to be a simple bug fix.
+- The modification only involves one or two lines.
+
+### 4.2 Upstream Investigation Priority
+
+Use the following investigation order:
+
+1. Official upstream GitHub/GitLab repository.
+2. Official upstream documentation.
+3. Upstream source code.
+4. Upstream release notes and changelogs.
+5. Upstream issues and discussions.
+6. Upstream pull requests and commits.
+7. Official Fedora documentation, when RPM packaging is involved.
+
+Third-party implementations may be used as supplementary references, but MUST NOT replace upstream verification.
+
+### 4.3 What Must Be Verified
+
+Before proposing a modification, establish:
+
+- What the current upstream implementation actually does.
+- Whether the proposed feature or fix already exists upstream.
+- Whether the issue is already fixed in a newer release.
+- Whether there is an upstream issue or pull request discussing it.
+- Whether the proposed solution follows upstream recommendations.
+- Whether the proposed change introduces compatibility or maintenance problems.
+- Whether a downstream modification is actually necessary.
+
+If upstream information cannot be verified, explicitly report that limitation.
+
+DO NOT fabricate upstream behavior, issue numbers, commits, or recommendations.
+
+### 4.4 No Unverified Implementation
+
+Never propose an implementation as an established fact when it is only a hypothesis.
+
+Clearly distinguish between:
+
+- Verified upstream behavior.
+- Official documentation requirements.
+- Existing project implementation.
+- Technical inference.
+- Unverified hypotheses.
+- Proposed modifications.
+
+If evidence is insufficient, investigate further or explain what remains unknown.
+
+---
+
+## 5. Strict Approval Gate — No Changes Without Permission
+
+This is a mandatory authorization policy.
+
+**You MUST NOT modify any project file without explicit approval from the project owner.**
+
+### 5.1 Actions That Require Approval
+
+The following actions are prohibited until approval:
+
+- Creating files.
+- Editing existing files.
+- Deleting files.
+- Renaming or moving files.
+- Modifying SPEC files.
+- Adding, removing, or changing patches.
+- Changing package dependencies.
+- Modifying build scripts.
+- Changing system configurations.
+- Modifying systemd units or overrides.
+- Changing repository configurations.
+- Running automated formatters that modify files.
+- Applying patches.
+- Committing changes.
+- Pushing changes.
+- Executing scripts that modify the project or system.
+
+Do not interpret a request to investigate, analyze, explain, or diagnose as permission to modify files.
+
+**Exception:** AGENTS.md has its own stricter protection policy in Section 2. General project approval does not authorize modifying it.
+
+### 5.2 Required Workflow
+
+Every modification MUST follow this sequence.
+
+#### Phase 1 — Investigation
+
+- Inspect the existing project files.
+- Identify the affected components.
+- Investigate upstream behavior.
+- Verify official documentation.
+- Identify the actual problem.
+- Determine whether a modification is necessary.
+
+No project modifications are allowed.
+
+#### Phase 2 — Report Findings
+
+Present your findings to the project owner.
+
+The report MUST include:
+
+1. Problem description.
+2. Current implementation.
+3. Upstream implementation or official recommendation.
+4. Evidence and source links.
+5. Root cause.
+6. Proposed solution.
+7. Exact files that would be modified.
+8. Expected changes.
+9. Potential side effects and risks.
+10. Implementation approach.
+
+If multiple solutions exist, explain their differences and recommend one.
+
+#### Phase 3 — Wait for Approval
+
+Stop and wait for explicit approval.
+
+Do not proceed automatically.
+
+Examples of valid approval:
+
+- "批准"
+- "可以执行"
+- "按这个方案修改"
+- "Proceed with this implementation"
+
+Silence, previous approval for another task, and general discussion do NOT constitute approval.
+
+#### Phase 4 — Execute
+
+Only after approval:
+
+- Implement the approved changes.
+- Modify only the approved files.
+- Follow the approved implementation plan.
+- Do not introduce unrelated changes.
+- Do not silently expand the scope.
+
+If new problems or additional modifications become necessary, STOP and request further approval.
+
+---
+
+## 6. Approval Scope and Change Control
+
+Approval is limited to the specific modification plan presented to the owner.
+
+For example:
+
+If approval was granted to modify `package.spec`, this does NOT authorize modifications to:
+
+- `build.sh`
+- `install.sh`
+- `systemd/*.service`
+- Other SPEC files
+- Repository configuration
+- Unrelated documentation
+
+Additional changes require additional approval.
+
+If the implementation differs from the approved plan, stop and explain why.
+
+Never use an approved task as permission to perform unrelated cleanup, refactoring, optimization, or formatting.
+
+Approval to modify files does NOT automatically authorize building, testing, packaging, or installing the result.
+
+These operations have a separate authorization requirement described in Section 8.
+
+AGENTS.md remains protected regardless of the scope of an approved task.
+
+---
+
+## 7. Research and Diagnostic Operations
+
+The following operations are generally allowed without modification approval, provided they do not change project or system state:
+
+- Reading project files.
+- Inspecting directory structures.
+- Reading upstream source code.
+- Browsing official documentation.
+- Checking Git history.
+- Inspecting existing RPM metadata.
+- Querying package dependencies.
+- Checking package versions.
+- Reviewing logs.
+- Running read-only diagnostic commands.
+- Analyzing existing build failures.
+- Reviewing existing build artifacts.
+
+When uncertain whether a command modifies state, do not execute it.
+
+Explain its potential effects and request permission first.
+
+Do not execute commands that:
+
+- Install or remove packages.
+- Change repository configurations.
+- Modify system settings.
+- Change boot configurations.
+- Restart or stop system services.
+- Overwrite project files.
+- Generate build artifacts.
+- Modify the host system.
+
+Unless the owner explicitly authorizes the relevant operation.
+
+---
+
+## 8. Build, Packaging and Testing Policy
+
+### 8.1 Disabled by Default
+
+**All post-modification build, packaging, and testing operations are DISABLED by default.**
+
+After completing an approved modification, you MUST NOT automatically execute:
+
+- RPM builds.
+- `rpmbuild`.
+- `mock`.
+- `rpmlint`.
+- Package build pipelines.
+- CI/CD workflows.
+- Automated test suites.
+- Package installation.
+- Package removal.
+- Runtime testing.
+- Integration testing.
+- Any other build or validation procedure.
+
+This restriction applies even when:
+
+- The modification is small.
+- The SPEC file has been changed.
+- The build appears straightforward.
+- You believe verification is necessary.
+- You want to confirm that the modification works.
+- The build is likely to succeed.
+
+Do not initiate build or verification operations without explicit authorization.
+
+### 8.2 Explicit Authorization Required
+
+Build and package verification may only be performed when the project owner explicitly requests it.
+
+Examples:
+
+- "执行打包验证"
+- "运行 rpmlint"
+- "使用 mock 构建"
+- "帮我测试这个 SPEC"
+- "Run the RPM build."
+
+Authorization to modify files does NOT imply authorization to build or test them.
+
+### 8.3 After Modification Without Verification
+
+When verification has not been requested:
+
+1. Inspect the final Git diff using read-only operations.
+2. Identify all modified files.
+3. Summarize the implementation.
+4. Explain the intended behavior.
+5. Clearly state that no build, packaging, or testing was performed.
+
+Do not claim that the modification works, builds successfully, or passes Fedora packaging review without actual verification.
+
+### 8.4 When Verification Is Requested
+
+When the owner explicitly requests verification:
+
+- Perform only the requested verification.
+- Use the appropriate tools for the target Fedora release.
+- Report commands that were executed.
+- Report actual results.
+- Identify failures and warnings.
+- Do not silently modify additional files to fix verification failures.
+
+If fixing a newly discovered issue requires further modifications, return to Section 5 and obtain approval.
+
+### 8.5 Mandatory Distinction
+
+This policy applies ONLY to post-modification build, packaging, and testing.
+
+It does NOT waive mandatory upstream investigation BEFORE modifications.
+
+**Upstream verification is always mandatory.**
+
+**Post-modification build verification is optional and requires explicit authorization.**
+
+---
+
+## 9. Technical Accuracy and Communication
+
+### 9.1 Evidence-Based Answers
+
+Never present assumptions as facts.
+
+Distinguish clearly between:
+
+- Verified upstream behavior.
+- Official Fedora requirements.
+- Existing project implementation.
+- Technical inference.
+- Proposed changes.
+- Unverified hypotheses.
+
+Whenever possible, provide direct links to relevant:
+
+- Source code.
+- Official documentation.
+- Commits.
+- Issues.
+- Pull requests.
+- Release notes.
+
+### 9.2 Do Not Guess
+
+If information is insufficient:
+
+- State what is unknown.
+- Explain what needs verification.
+- Investigate before proposing changes.
+- Ask the owner when necessary.
+
+Do not invent:
+
+- Configuration options.
+- RPM macros.
+- Dependencies.
+- Command-line arguments.
+- Systemd directives.
+- Upstream recommendations.
+- Test results.
+
+### 9.3 Respect Existing Architecture
+
+Before proposing architectural changes:
+
+- Understand the existing project structure.
+- Identify existing conventions.
+- Understand the intended build and deployment workflow.
+- Avoid introducing unnecessary dependencies.
+- Avoid replacing existing mechanisms without evidence.
+
+Prefer minimal, maintainable changes that solve the verified problem.
+
+---
+
+## 10. Mandatory Response Format Before Modifications
+
+Every proposed modification MUST use this format.
+
+### Investigation Results
+
+**Problem:**
+
+Describe the identified problem.
+
+**Current Implementation:**
+
+Explain how the project currently handles it.
+
+**Upstream Verification:**
+
+Describe upstream behavior and provide direct references.
+
+**Root Cause:**
+
+Explain the verified cause or clearly identify any remaining uncertainty.
+
+### Proposed Changes
+
+**Files Affected:**
+
+List every file that would be modified.
+
+**Implementation:**
+
+Explain the exact changes.
+
+**Fedora Compliance:**
+
+Explain which Fedora packaging requirements apply, if relevant.
+
+**Risks:**
+
+Describe possible side effects.
+
+**Implementation Scope:**
+
+Clearly define what will and will not be modified.
+
+### Approval Required
+
+Clearly state:
+
+- No modifications have been made.
+- No build or package verification has been performed.
+- Explicit approval is required before implementation.
+- AGENTS.md will remain untouched.
+
+Then wait for the owner's authorization.
+
+---
+
+## 11. Final Rules — Non-Negotiable
+
+1. Fedora packaging standards are mandatory for RPM SPEC files.
+2. Upstream verification is mandatory before every modification.
+3. Evidence must be provided before proposing implementation changes.
+4. Explicit owner approval is mandatory before modifying files.
+5. Approval applies only to the agreed scope.
+6. Never silently modify additional files.
+7. Never fabricate test results or upstream references.
+8. Never assume that a request for analysis authorizes implementation.
+9. Never automatically build, package, or test after modifications.
+10. Build and package verification require separate explicit authorization.
+11. When uncertain, STOP and ASK.
+12. AGENTS.md is protected and MUST NOT be modified without explicit owner authorization.
+13. General project approval does NOT authorize changes to AGENTS.md.
+14. Never weaken, bypass, or remove these instructions independently.
+
+**The project owner has final authority over all implementation decisions.**
+
+Your responsibility is to investigate, explain, propose, and execute only what has been explicitly approved.
+
+**No approval, no modification.**
+
+**No explicit verification request, no build.**
+
+**No explicit AGENTS.md modification request, no changes to AGENTS.md.**
