@@ -72,7 +72,10 @@ Wayland 会话与配色方案，视觉风格与 Noctalia Shell 保持一致。
 %autosetup -n noctalia-greeter-%{commit}
 
 %build
+# Upstream sets 'c_args=-Wno-error=switch' in default_options, which drops the
+# distro C flags; force PIE so C objects link into the PIE binaries RPM expects.
 %meson \
+  -Db_pie=true \
   -Dnative_optimizations=false
 %meson_build
 
