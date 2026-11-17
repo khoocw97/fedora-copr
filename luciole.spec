@@ -54,19 +54,20 @@ BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.49
 BuildRequires:  pkgconfig(xkbcommon)
 
+Requires:       adwaita-icon-theme
 Requires:       dconf
+Requires:       glib-networking
+Requires:       glycin-loaders
 Requires:       gsettings-desktop-schemas
 Requires:       gvfs
+Requires:       gvfs-smb
 Requires:       hicolor-icon-theme
-Recommends:     adwaita-icon-theme
-Recommends:     (ffmpeg or ffmpeg-free)
-Recommends:     ffmpegthumbnailer
-Recommends:     glib-networking
-Recommends:     glycin-loaders
-Recommends:     gvfs-smb
-Recommends:     poppler-utils
-Recommends:     xdg-terminal-exec
+Requires:       poppler-utils
+Requires:       shared-mime-info
+Requires:       (ffmpeg-free or ffmpeg)
 Recommends:     7zip
+Recommends:     ffmpegthumbnailer
+Recommends:     xdg-terminal-exec
 
 %description
 Luciole is a native Wayland file manager with grid, list and Miller column
