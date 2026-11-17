@@ -94,6 +94,8 @@ jobs:
           bump github noctalia-dev/umbriel umbriel.spec
           bump github noctalia-dev/xdg-desktop-portal-umbriel xdg-desktop-portal-umbriel.spec
           bump github noctalia-dev/luciole luciole.spec
+          bump github noctalia-dev/noctalia noctalia-git.spec
+          bump github noctalia-dev/noctalia-greeter noctalia-greeter-git.spec
           bump github mroboff/vm-curator vm-curator.spec
           bump github mangowm/mango mangowm.spec
           bump github wlrfx/scenefx scenefx.spec
