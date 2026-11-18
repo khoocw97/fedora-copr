@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      ec3e4d2cb02130f134d9401d53592626062c3961
+%global commit      c142a4b7748c1d9e9dd0e5c2143f9c9f367d0637
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261117
+%global commitdate  20261118
 
 Name:           luciole
 Version:        %{commitdate}git.%{shortcommit}
@@ -29,12 +29,11 @@ BuildRequires:  pkgconfig(cairo-ft)
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(freetype2)
-BuildRequires:  pkgconfig(gdk-pixbuf-2.0) >= 2.44
+BuildRequires:  pkgconfig(gdk-pixbuf-2.0) >= 2.42
 BuildRequires:  pkgconfig(gio-2.0) >= 2.76
 BuildRequires:  pkgconfig(gio-unix-2.0) >= 2.76
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(glesv2)
-BuildRequires:  pkgconfig(glycin-2) >= 2.0.1
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  pkgconfig(libacl)
 BuildRequires:  pkgconfig(libarchive)
@@ -110,5 +109,8 @@ install -Dpm 0644 lib/assets/fonts/tabler-icons-license.txt \
 %{_datadir}/fish/vendor_completions.d/luciole.fish
 
 %changelog
-* Wed Nov 18 2026 Weng <khoocw97@gmail.com> - 20261117git.d8755c5-1
+* Wed Nov 18 2026 Weng <khoocw97@gmail.com> - 20261118git.c142a4b-1
+- Bump to c142a4b
+- Drop glycin-2 BuildRequires, gdk-pixbuf >= 2.42 (upstream 5da0255)
+* Wed Nov 18 2026 Weng <khoocw97@gmail.com> - 20261117git.ec3e4d2-1
 - Initial package
