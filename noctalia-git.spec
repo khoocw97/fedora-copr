@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      4e1dcb6eb2dac494af63db9ab9a0017fcbf0f7c4
+%global commit      f737e2da2e2991436977875725e88e2588d6e765
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261117
+%global commitdate  20261118
 
 Name:           noctalia-git
 Version:        %{commitdate}git.%{shortcommit}
@@ -144,5 +144,7 @@ install -d -m 0755 %{buildroot}%{zsh_completions_dir}
 %{zsh_completions_dir}/_noctalia
 
 %changelog
-* Wed Nov 18 2026 Weng <khoocw97@gmail.com> - 20261117git.49ae93c-1
+* Wed Nov 18 2026 Weng <khoocw97@gmail.com> - 20261118git.f737e2d-1
+- Bump to f737e2d (upstream icon color-scheme work, no packaging changes)
+* Wed Nov 18 2026 Weng <khoocw97@gmail.com> - 20261117git.4e1dcb6-1
 - Initial package (git snapshot)
