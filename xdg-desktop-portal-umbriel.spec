@@ -13,6 +13,7 @@ License:        MIT
 URL:            https://github.com/noctalia-dev/xdg-desktop-portal-umbriel
 Source0:        %{url}/archive/%{commit}.tar.gz#/%{name}-%{version}.tar.gz
 
+BuildRequires:  dbus-daemon
 BuildRequires:  gcc-c++
 BuildRequires:  meson >= 1.3
 BuildRequires:  systemd-rpm-macros
@@ -81,6 +82,9 @@ test -x %{buildroot}%{_libexecdir}/umbriel-share-picker
 %{_datadir}/xdg-desktop-portal/portals/umbriel.portal
 %config %{_datadir}/xdg-desktop-portal/umbriel-portals.conf
 %{_datadir}/dbus-1/services/org.freedesktop.impl.portal.desktop.umbriel.service
+%dir %{_datadir}/xdg-desktop-portal-umbriel
+%dir %{_datadir}/xdg-desktop-portal-umbriel/assets
+%dir %{_datadir}/xdg-desktop-portal-umbriel/assets/fonts
 %{_datadir}/xdg-desktop-portal-umbriel/assets/fonts/noctalia-tabler.ttf
 %{_datadir}/xdg-desktop-portal-umbriel/assets/fonts/tabler.json
 %license %{_datadir}/xdg-desktop-portal-umbriel/assets/fonts/tabler-icons-license.txt
@@ -91,7 +95,8 @@ test -x %{buildroot}%{_libexecdir}/umbriel-share-picker
 - Bump to 6b5e084 (noctalia-ui lib update)
 - Replace GTK4 picker with noctalia-ui: -Dpicker is now a boolean option
 - Sync BuildRequires with lib/meson.build (pango/harfbuzz/glib/egl/stb, drop gtk4)
-- Install picker font assets
+- Require dbus-run-session for the upstream test targets
+- Install picker font assets and own their directories
 * Tue Nov 17 2026 Weng <khoocw97@gmail.com>
 - prefers Luciole FileChooser with gtk fallback, %config instead of %config(noreplace)
 - Recommends: xdg-desktop-portal-gtk (fallback for unimplemented interfaces)
