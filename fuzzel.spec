@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      a5bbfe6496838be810302dd911a1fa7b63edb471
+%global commit      a054cbef26167f164e7cfd3db063fdf3e7b0faa1
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261116
+%global commitdate  20261120
 
 Name:           fuzzel
 Version:        %{commitdate}git.%{shortcommit}
