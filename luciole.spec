@@ -100,6 +100,7 @@ install -Dpm 0644 lib/assets/fonts/tabler-icons-license.txt \
 %{_bindir}/luciole
 %{_datadir}/luciole/
 %{_datadir}/applications/dev.noctalia.luciole.desktop
+%{_datadir}/applications/dev.noctalia.luciole-chooser.desktop
 %{_datadir}/icons/hicolor/scalable/apps/dev.noctalia.luciole.svg
 %{_datadir}/dbus-1/services/dev.noctalia.luciole.FileManager1.service
 %{_datadir}/dbus-1/services/org.freedesktop.impl.portal.desktop.luciole.service
