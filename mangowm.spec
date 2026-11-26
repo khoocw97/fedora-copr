@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      c8ce01c89eef092bec305a416bc888286c37f443
+%global commit      792170de157f281ff46530b3871784ab8cdb020c
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261124
+%global commitdate  20261125
 
 Name:           mangowm
 Version:        %{commitdate}git.%{shortcommit}
