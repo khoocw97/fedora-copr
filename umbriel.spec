@@ -106,8 +106,12 @@ test -x %{buildroot}%{_bindir}/start-umbriel
 %{_userunitdir}/umbriel.service
 %{_userunitdir}/umbriel-session.target
 %{_userunitdir}/umbriel-shutdown.target
+%{_prefix}/lib/dinit.d/user/umbriel
+%{_prefix}/lib/dinit.d/user/umbriel-session
 
 %changelog
+* Fri Nov 27 2026 Weng <khoocw97@gmail.com>
+- Package dinit user service files (upstream cead580)
 * Tue Nov 17 2026 Weng <khoocw97@gmail.com>
 - Add BuildRequires libdisplay-info >= 0.3.0, libsystemd >= 243, xcb, xcb-icccm, xcb-ewmh, xcb-shape, xcb-randr (upstream meson.build)
 - BuildRequires libinput >= 1.29, xkbcommon >= 1.10, wlroots-0.20 < 0.21 (upstream PACKAGING.md)
