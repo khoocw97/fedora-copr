@@ -1,8 +1,8 @@
 %global debug_package %{nil}
 
-%global commit      bc610d06c1e00d25311e31091edf8cb158dbadeb
+%global commit      61331fcb80363555bd3fea0bd33d1484ed0eab22
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global commitdate  20261126
+%global commitdate  20261127
 
 Name:           luciole
 Version:        %{commitdate}git.%{shortcommit}
